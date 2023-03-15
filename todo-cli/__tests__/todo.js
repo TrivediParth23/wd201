@@ -1,92 +1,67 @@
-const todoList = require('../todo');
+// describe("First test suite", () => {
+//     test("First case", () => {
+//         expect(true).toBe(true);
+//         // expect(false).toBe(true);
+//         // expect(true).toBe(false);
+//     });
+// });
 
-const {all, add,markAsComplete,overdue,dueToday,dueLater} = todoList();
+const todoList = require("../todo");
 
-describe("TodoList test Check", () => {
-    /*beforeAll(() => {
-        add({
-            title : "Bought yesterday",
-            completed : false,
-            dueDate : new Date().toISOString().split("T")[0]-1
-        },
-        {
-            title : "Buy Today",
-            completed : false,
-            dueDate : new Date().toISOString().split("T")[0]
-        },
-        {
-            title : "Buy Tomorow",
-            completed : false,
-            dueDate : new Date().toISOString().split("T")[0]+1
-        });
-    });*/
+const { all, add, markAsComplete, overdue, dueToday, dueLater } = todoList();
 
-    const formattedDate = d => {
-        return d.toISOString().split("T")[0]
-      }
-      
-      var dateToday = new Date()
-      const today = formattedDate(dateToday)
-      const yesterday = formattedDate(
-        new Date(new Date().setDate(dateToday.getDate() - 1))
-      )
-      const tomorrow = formattedDate(
-        new Date(new Date().setDate(dateToday.getDate() + 1))
-      )
+describe("Todolist Test Suite", () => {
+  // let today = new Date().toLocaleDateString("en-CA");
+  let today = new Date().toISOString().slice(0, 10);
+  let yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
+    .toISOString()
+    .slice(0, 10);
+  let tommorow = new Date(new Date().setDate(new Date().getDate() + 1))
+    .toISOString()
+    .slice(0, 10);
 
-    test("Check add test",() => {
-        const addcounts = all.length;
-        add({
-            title : "Buy day after tomorow",
-            completed : false,
-            dueDate : new Date().toISOString().split("T")[0]+2
-        });
-        expect(all.length).toBe(addcounts+1);
-    });
-    test("check markascomplete test",()=>{
-        expect(all[0].completed).toBe(false);
-        markAsComplete(0);
-        expect(all[0].completed).toBe(true);
-    });
+  beforeAll(() => {
+    add({ title: "Submit assignment", dueDate: yesterday, completed: false });
+    add({ title: "Pay rent", dueDate: today, completed: true });
+    add({ title: "Service Vehicle", dueDate: today, completed: false });
+    add({ title: "File taxes", dueDate: tommorow, completed: false });
+    add({ title: "Pay electric bill", dueDate: tommorow, completed: false });
+  });
 
-    test("Check re-overdue items", () =>{
-        const overlength = overdue().length;
-        
-        add({
-            title : "Bought yesterday",
-            completed : false,
-            dueDate : yesterday
-        });
-        expect(overdue().length).toBe(overlength+1);
+  test("Should add new todo", () => {
+    // expect(all.length).toBe(0);
+    const todoItemsCount = all.length;
+    add({ title: "Test todo", dueDate: tommorow, completed: false });
+    expect(all.length).toBe(todoItemsCount + 1);
+  });
 
-    });
+  test("Should mark a todo as complete", () => {
+    expect(all[0].completed).toBe(false);
+    markAsComplete(0);
+    expect(all[0].completed).toBe(true);
+  });
 
-    test("Check re-today items", () =>{
-        const daylength = dueToday().length;
-        
-        add(
-            {
-                title : "Buy Today",
-                completed : false,
-                dueDate : today
-            }
-        );
-        expect(dueToday().length).toBe(daylength+1);
-    });
+  test("Should retriev a overdue items", () => {
+    const overdueItems = overdue();
+    expect(overdueItems.length).toBe(1);
+    expect(overdueItems[0].title).toBe("Submit assignment");
+    // expect(overdue().length > 0).toBe(true);
+  });
 
-    test("Check re-duelater items", () =>{
-        const laterlength = dueLater().length;
-        
-        add(
-            {
-                title : "Buy Tomorow",
-                completed : false,
-                dueDate : tomorrow
-            }
-        );
-        expect(dueLater().length).toBe(laterlength+1);
-    });
+  test("Should retriev a due today items", () => {
+    const dueTodayItems = dueToday();
+    expect(dueTodayItems.length).toBe(2);
+    expect(dueTodayItems[0].title).toBe("Pay rent");
+    expect(dueTodayItems[1].title).toBe("Service Vehicle");
+    // expect(dueToday().length > 0).toBe(true);
+  });
+
+  test("Should retriev a due later items", () => {
+    const dueLaterItems = dueLater();
+    expect(dueLaterItems.length).toBe(3);
+    expect(dueLaterItems[0].title).toBe("File taxes");
+    expect(dueLaterItems[1].title).toBe("Pay electric bill");
+    expect(dueLaterItems[2].title).toBe("Test todo");
+    // expect(dueLater().length > 0).toBe(true);
+  });
 });
-
-
-
